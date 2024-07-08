@@ -1,0 +1,11 @@
+# env variables
+.env
+
+# OS Files
+.DS_Store
+
+# notebooks
+notebooks/
+
+# enviroment 
+tunetok-dev-env/
