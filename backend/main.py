@@ -1,4 +1,5 @@
 import asyncio
+import uvicorn
 import os
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,7 +35,7 @@ app.add_middleware(
 )
 
 # Three main endpoints
-# Flow: upload_video -> process_video -> generate_song 
+# Flow: upload_video -> process_video -> generate_song + post-processing endpoint 
 
 # Upload a video file to the server
 @app.post("/upload_video")
@@ -143,6 +144,8 @@ async def generate_song(request: GenerateRequest):
         print(f"Song for video {video_id} generated and moved to {song_path} in {processing_time:.2f} seconds")
 
         return response
+    
+# make separate endpoint for combining audio + original video 
 
     except Exception as e:
         end_time = time.time()
@@ -150,3 +153,7 @@ async def generate_song(request: GenerateRequest):
         error_message = f"An error occurred during song generation: {str(e)}. Processing time: {processing_time:.2f} seconds"
         print(error_message)
         raise HTTPException(status_code=500, detail=error_message)
+    
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
