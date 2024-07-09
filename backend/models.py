@@ -23,3 +23,10 @@ class GenerateRequest(BaseModel):
 class GenerateResponse(BaseModel):
     message: str
     song_path: str
+    
+class VideoPostProcessRequest(BaseModel):
+    video_id: str
+
+class VideoPostProcessResponse(BaseModel):
+    message: str
+    output_path: str

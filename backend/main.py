@@ -6,14 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 import uuid
 import time
 
-from models import VideoIdRequest, VideoProcessingResponse, GenerateRequest, GenerateResponse
+from models import VideoIdRequest, VideoProcessingResponse, GenerateRequest, GenerateResponse, VideoPostProcessRequest, VideoPostProcessResponse
 from helper import (
     has_speech,
     transcribe_audio,
     extract_keyframes,
     generate_keyframe_desc,
     generate_prompt,
-    combine_audio
+    combine_audio,
 )
 from suno_client import create_suno_client
 from config import OPEN_AI_KEY, SUNO_COOKIE
@@ -144,13 +144,49 @@ async def generate_song(request: GenerateRequest):
         print(f"Song for video {video_id} generated and moved to {song_path} in {processing_time:.2f} seconds")
 
         return response
-    
-# make separate endpoint for combining audio + original video 
 
     except Exception as e:
         end_time = time.time()
         processing_time = end_time - start_time
         error_message = f"An error occurred during song generation: {str(e)}. Processing time: {processing_time:.2f} seconds"
+        print(error_message)
+        raise HTTPException(status_code=500, detail=error_message)
+    
+# Add this new endpoint to your main.py file
+@app.post("/post_process_video", response_model=VideoPostProcessResponse)
+async def post_process_video(request: VideoPostProcessRequest):
+    video_id = request.video_id
+    start_time = time.time()
+
+    try:
+        video_dir = f"media/{video_id}"
+        video_path = f"{video_dir}/{video_id}.mp4"
+        audio_path = f"{video_dir}/suno_output/generated_song.mp3"
+        output_path = f"{video_dir}/final_output.mp4"
+
+        if not os.path.exists(video_path):
+            raise HTTPException(status_code=404, detail="Original video not found")
+        if not os.path.exists(audio_path):
+            raise HTTPException(status_code=404, detail="Generated audio not found")
+
+        await asyncio.to_thread(combine_audio, video_path, audio_path, output_path)
+
+        end_time = time.time()
+        processing_time = end_time - start_time
+
+        response = VideoPostProcessResponse(
+            message=f"Video post-processing completed in {processing_time:.2f} seconds",
+            output_path=output_path
+        )
+
+        print(f"Video {video_id} post-processed in {processing_time:.2f} seconds")
+
+        return response
+
+    except Exception as e:
+        end_time = time.time()
+        processing_time = end_time - start_time
+        error_message = f"An error occurred during video post-processing: {str(e)}. Processing time: {processing_time:.2f} seconds"
         print(error_message)
         raise HTTPException(status_code=500, detail=error_message)
     
