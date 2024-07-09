@@ -62,7 +62,7 @@ The final step involves carefully splicing the original TikTok video with the ne
 
 ## Challenges
 - Strategically designing the backend and understanding how each core component interact with each other. 
-- Orchestrating API calls, understanding when to effectively make asynchrnous calls vs. synchrnous calls.
+- Orchestrating API calls, understanding when to effectively make asynchronous calls vs. synchronous calls.
 - Learning frontend on the fly (apologies for spaghetti code).
 - Building every aspect of the product end-to-end: UX/UI, frontend, and backend.
 
