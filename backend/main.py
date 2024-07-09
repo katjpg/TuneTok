@@ -152,7 +152,7 @@ async def generate_song(request: GenerateRequest):
         print(error_message)
         raise HTTPException(status_code=500, detail=error_message)
     
-# Add this new endpoint to your main.py file
+# Post processing time 
 @app.post("/post_process_video", response_model=VideoPostProcessResponse)
 async def post_process_video(request: VideoPostProcessRequest):
     video_id = request.video_id
