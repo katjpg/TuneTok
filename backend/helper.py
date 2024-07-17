@@ -225,29 +225,30 @@ async def generate_prompt(keyframe_analysis: List[KeyframeAnalysis], transcripti
         return "Error generating Suno prompt"
     
 # Video Post Processing 
-def combine_audio(vidname, audname, outname, fps=60):
-    # Load the video clip
-    my_clip = mpe.VideoFileClip(vidname)
+# initial function w/o finding best offset
+# def combine_audio(vidname, audname, outname, fps=60):
+#     # Load the video clip
+#     my_clip = mpe.VideoFileClip(vidname)
     
-    # Load the audio clip
-    audio_background = mpe.AudioFileClip(audname)
+#     # Load the audio clip
+#     audio_background = mpe.AudioFileClip(audname)
     
-    # Get the duration of the video
-    video_duration = my_clip.duration
+#     # Get the duration of the video
+#     video_duration = my_clip.duration
     
-    # Trim the audio to match the video duration
-    trimmed_audio = audio_background.subclip(0, video_duration)
+#     # Trim the audio to match the video duration
+#     trimmed_audio = audio_background.subclip(0, video_duration)
     
-    # Set the trimmed audio to the video clip
-    final_clip = my_clip.set_audio(trimmed_audio)
+#     # Set the trimmed audio to the video clip
+#     final_clip = my_clip.set_audio(trimmed_audio)
     
-    # Write the final video file
-    final_clip.write_videofile(outname, fps=fps)
+#     # Write the final video file
+#     final_clip.write_videofile(outname, fps=fps)
     
-    # Close the clips to free up resources
-    my_clip.close()
-    audio_background.close()
-    final_clip.close()
+#     # Close the clips to free up resources
+#     my_clip.close()
+#     audio_background.close()
+#     final_clip.close()
 
 def analyze_video_changes(video):
     # Extract frames and convert to grayscale
@@ -312,3 +313,16 @@ def combine_audio(vidname, audname, outname, fps=60):
             best_score = score
             best_offset = offset
     
+    # Trim and offset the audio
+    trimmed_audio = audio_background.subclip(best_offset, best_offset + video_duration)
+    
+    # Set the trimmed audio to the video clip
+    final_clip = my_clip.set_audio(trimmed_audio)
+    
+    # Write the final video file
+    final_clip.write_videofile(outname, fps=fps)
+    
+    # Close the clips to free up resources
+    my_clip.close()
+    audio_background.close()
+    final_clip.close()
